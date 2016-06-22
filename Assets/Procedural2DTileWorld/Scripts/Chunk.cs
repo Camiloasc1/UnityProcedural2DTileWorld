@@ -78,25 +78,22 @@ namespace Procedural2DTileWorld
                 (_position.x*_size + x)*_world.Settings.Scale.x + _world.Settings.Offset.x,
                 (_position.y*_size + y)*_world.Settings.Scale.y + _world.Settings.Offset.y
                 );
-            //value = Mathf.Clamp01(value);
-            value *= _world.Settings.Multiplier;
-            if (value < _world.Terrain.TerrainSettings.Water)
+            value = Mathf.Clamp01(value);
+            foreach (var tile in _world.Terrain)
             {
-                SetTerrain(x, y, _world.Terrain.Water);
+                if (tile.IsInRange(value))
+                {
+                    SetTerrain(x, y, tile.Prefab);
+                    break;
+                }
             }
-            else if (value < _world.Terrain.TerrainSettings.Sand)
+            foreach (var tile in _world.Enviroment)
             {
-                SetTerrain(x, y, _world.Terrain.Sand);
-            }
-            else if (value < _world.Terrain.TerrainSettings.Grass)
-            {
-                SetTerrain(x, y, _world.Terrain.Grass);
-            }
-            //else if (value < world.Terrain.TerrainSettings.Tree)
-            else
-            {
-                SetTerrain(x, y, _world.Terrain.Grass);
-                SetEnviroment(x, y, _world.Enviroment.Tree);
+                if (tile.IsInRange(value))
+                {
+                    SetEnviroment(x, y, tile.Prefab);
+                    break;
+                }
             }
         }
 

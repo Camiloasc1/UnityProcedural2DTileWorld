@@ -8,18 +8,18 @@ namespace Procedural2DTileWorld
     {
         [Tooltip("Size of the chunks.")] [SerializeField] private uint _chunkSize = 16;
         [Tooltip("Prefab of chunk.")] [SerializeField] private GameObject _chunk;
-        [Tooltip("Enviroment tiles prefabs.")] [SerializeField] private Enviroment _enviroment;
-        [Tooltip("Terrain tiles prefabs.")] [SerializeField] private Terrain _terrain;
+        [Tooltip("Enviroment tiles settings.")] [SerializeField] private TileSettings[] _enviroment;
+        [Tooltip("Terrain tiles settings.")] [SerializeField] private TileSettings[] _terrain;
         [Tooltip("Settings for procedural generation.")] [SerializeField] private Settings _settings;
 
         private Chunk[,] chunks;
 
-        public Enviroment Enviroment
+        public TileSettings[] Enviroment
         {
             get { return _enviroment; }
         }
 
-        public Terrain Terrain
+        public TileSettings[] Terrain
         {
             get { return _terrain; }
         }
@@ -59,38 +59,21 @@ namespace Procedural2DTileWorld
         }
     }
 
-    [Serializable]
-    public struct Enviroment
-    {
-        [SerializeField] public GameObject DeadBush;
-        [SerializeField] public GameObject Flower;
-        [SerializeField] public GameObject Mushroom;
-        [SerializeField] public GameObject TallGrass;
-        [SerializeField] public GameObject Tree;
-        [SerializeField] public GameObject WaterLily;
-    }
 
     [Serializable]
-    public struct Terrain
+    public struct TileSettings
     {
-        [SerializeField] public TerrainSettings TerrainSettings;
-        [SerializeField] public GameObject Cobblestone;
-        [SerializeField] public GameObject Dirt;
-        [SerializeField] public GameObject Grass;
-        [SerializeField] public GameObject Gravel;
-        [SerializeField] public GameObject Podzol;
-        [SerializeField] public GameObject Sand;
-        [SerializeField] public GameObject Sandstone;
-        [SerializeField] public GameObject Water;
-    }
+        [Tooltip("The name of this tile.")] [SerializeField] public string Name;
+        [Tooltip("The prefab of this tile.")] [SerializeField] public GameObject Prefab;
+        [Tooltip("The minimun height to spawn.")] [Range(0.0f, 1.0f)] [SerializeField] public float MinHeight;
+        [Tooltip("The maximum height to spawn.")] [Range(0.0f, 1.0f)] [SerializeField] public float MaxHeight;
+        [Tooltip("Use conditional spawn.")] [SerializeField] public bool UseProbability;
+        [Tooltip("The probability to spawn.")] [Range(0.0f, 1.0f)] [SerializeField] public float Probability;
 
-    [Serializable]
-    public struct TerrainSettings
-    {
-        [SerializeField] public float Water;
-        [SerializeField] public float Sand;
-        [SerializeField] public float Grass;
-        [SerializeField] public float Tree;
+        public bool IsInRange(float value)
+        {
+            return MinHeight <= value && value <= MaxHeight;
+        }
     }
 
     [Serializable]
@@ -98,6 +81,5 @@ namespace Procedural2DTileWorld
     {
         [SerializeField] public Vector2 Scale;
         [SerializeField] public Vector2 Offset;
-        [SerializeField] public float Multiplier;
     }
 }
