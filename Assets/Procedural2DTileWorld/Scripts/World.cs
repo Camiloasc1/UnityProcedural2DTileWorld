@@ -6,27 +6,27 @@ namespace Procedural2DTileWorld
 {
     public class World : MonoBehaviour
     {
-        [Tooltip("Size of the chunks.")] [SerializeField] private uint chunkSize = 16;
-        [Tooltip("Prefab of chunk.")] [SerializeField] private GameObject chunk;
-        [Tooltip("Enviroment tiles prefabs.")] [SerializeField] private Enviroment enviroment;
-        [Tooltip("Terrain tiles prefabs.")] [SerializeField] private Terrain terrain;
-        [Tooltip("Settings for procedural generation.")] [SerializeField] private Settings settings;
+        [Tooltip("Size of the chunks.")] [SerializeField] private uint _chunkSize = 16;
+        [Tooltip("Prefab of chunk.")] [SerializeField] private GameObject _chunk;
+        [Tooltip("Enviroment tiles prefabs.")] [SerializeField] private Enviroment _enviroment;
+        [Tooltip("Terrain tiles prefabs.")] [SerializeField] private Terrain _terrain;
+        [Tooltip("Settings for procedural generation.")] [SerializeField] private Settings _settings;
 
         private Chunk[,] chunks;
 
         public Enviroment Enviroment
         {
-            get { return enviroment; }
+            get { return _enviroment; }
         }
 
         public Terrain Terrain
         {
-            get { return terrain; }
+            get { return _terrain; }
         }
 
         public Settings Settings
         {
-            get { return settings; }
+            get { return _settings; }
         }
 
         // Awake is called when the script instance is being loaded
@@ -38,12 +38,12 @@ namespace Procedural2DTileWorld
                 for (int j = 0; j < chunks.GetLength(1); j++)
                 {
                     //TODO Use object pool
-                    GameObject chunkGameObject = Instantiate(chunk);
+                    GameObject chunkGameObject = Instantiate(_chunk);
                     chunks[i, j] = chunkGameObject.GetComponent<Chunk>();
                     chunks[i, j].transform.parent = transform;
                     chunks[i, j].transform.localPosition = Vector3.right*i + Vector3.down*j;
                     chunks[i, j].World = this;
-                    chunks[i, j].Size = chunkSize;
+                    chunks[i, j].Size = _chunkSize;
                 }
             }
         }
@@ -73,6 +73,7 @@ namespace Procedural2DTileWorld
     [Serializable]
     public struct Terrain
     {
+        [SerializeField] public TerrainSettings TerrainSettings;
         [SerializeField] public GameObject Cobblestone;
         [SerializeField] public GameObject Dirt;
         [SerializeField] public GameObject Grass;
@@ -84,11 +85,19 @@ namespace Procedural2DTileWorld
     }
 
     [Serializable]
-    public struct Settings
+    public struct TerrainSettings
     {
         [SerializeField] public float Water;
         [SerializeField] public float Sand;
         [SerializeField] public float Grass;
         [SerializeField] public float Tree;
+    }
+
+    [Serializable]
+    public struct Settings
+    {
+        [SerializeField] public Vector2 Scale;
+        [SerializeField] public Vector2 Offset;
+        [SerializeField] public float Multiplier;
     }
 }

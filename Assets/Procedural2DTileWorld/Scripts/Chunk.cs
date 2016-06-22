@@ -5,31 +5,32 @@ namespace Procedural2DTileWorld
 {
     public class Chunk : MonoBehaviour
     {
-        //[Header("Health Settings")]
-        [Tooltip("Wich tiled world this chunk belongs")] [SerializeField] private World world;
-        [Tooltip("(X,Y) Position in tiled world.")] [SerializeField] private Vector2 position;
-        [Tooltip("Size of the chunk.")] [SerializeField] private uint size;
+        //[Header("Health TerrainSettings")]
+        [Tooltip("Wich tiled world this chunk belongs")] [SerializeField] private World _world;
+        [Tooltip("(X,Y) Position in tiled world.")] [SerializeField] private Vector2 _position;
+        [Tooltip("Size of the chunk.")] [SerializeField] private uint _size;
 
-        private GameObject[,] tiles;
+        private GameObject[,] terrain;
+        private GameObject[,] enviroment;
 
         public World World
         {
-            get { return world; }
-            set { world = value; }
+            get { return _world; }
+            set { _world = value; }
         }
 
         public Vector2 Position
         {
-            get { return position; }
-            set { position = value; }
+            get { return _position; }
+            set { _position = value; }
         }
 
         public uint Size
         {
-            get { return size; }
+            get { return _size; }
             set
             {
-                size = value;
+                _size = value;
                 Generate();
             }
         }
@@ -51,21 +52,80 @@ namespace Procedural2DTileWorld
         }
 
         /// <summary>
-        /// Generate the tiles in this chunk.
+        /// Generate all the tiles in this chunk.
         /// </summary>
         public void Generate()
         {
-            tiles = new GameObject[size, size];
-            for (int i = 0; i < tiles.GetLength(0); i++)
+            terrain = new GameObject[_size, _size];
+            enviroment = new GameObject[_size, _size];
+            for (int x = 0; x < _size; x++)
             {
-                for (int j = 0; j < tiles.GetLength(1); j++)
+                for (int y = 0; y < _size; y++)
                 {
-                    //TODO Use object pool
-                    tiles[i, j] = Instantiate(world.Terrain.Cobblestone);
-                    tiles[i, j].transform.parent = transform;
-                    tiles[i, j].transform.localPosition = Vector3.right*i + Vector3.down*j;
+                    Generate(x, y);
                 }
             }
+        }
+
+        /// <summary>
+        /// Generate the tile in (X,Y)
+        /// </summary>
+        /// <param name="x">X position.</param>
+        /// <param name="y">Y position.</param>
+        private void Generate(int x, int y)
+        {
+            float value = Mathf.PerlinNoise(
+                (_position.x*_size + x)*_world.Settings.Scale.x + _world.Settings.Offset.x,
+                (_position.y*_size + y)*_world.Settings.Scale.y + _world.Settings.Offset.y
+                );
+            //value = Mathf.Clamp01(value);
+            value *= _world.Settings.Multiplier;
+            if (value < _world.Terrain.TerrainSettings.Water)
+            {
+                SetTerrain(x, y, _world.Terrain.Water);
+            }
+            else if (value < _world.Terrain.TerrainSettings.Sand)
+            {
+                SetTerrain(x, y, _world.Terrain.Sand);
+            }
+            else if (value < _world.Terrain.TerrainSettings.Grass)
+            {
+                SetTerrain(x, y, _world.Terrain.Grass);
+            }
+            //else if (value < world.Terrain.TerrainSettings.Tree)
+            else
+            {
+                SetTerrain(x, y, _world.Terrain.Grass);
+                SetEnviroment(x, y, _world.Enviroment.Tree);
+            }
+        }
+
+        /// <summary>
+        /// Set the terrain at (X,Y)
+        /// </summary>
+        /// <param name="x">X position.</param>
+        /// <param name="y">Y position.</param>
+        /// <param name="tile">The tile to set.</param>
+        private void SetTerrain(int x, int y, GameObject tile)
+        {
+            //TODO Use object pool
+            terrain[x, y] = Instantiate(tile);
+            terrain[x, y].transform.parent = transform;
+            terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.down*y;
+        }
+
+        /// <summary>
+        /// Set the enviroment object at (X,Y)
+        /// </summary>
+        /// <param name="x">X position.</param>
+        /// <param name="y">Y position.</param>
+        /// <param name="tile">The tile to set.</param>
+        private void SetEnviroment(int x, int y, GameObject tile)
+        {
+            //TODO Use object pool
+            enviroment[x, y] = Instantiate(tile);
+            enviroment[x, y].transform.parent = transform;
+            enviroment[x, y].transform.localPosition = Vector3.right*x + Vector3.down*y;
         }
     }
 }
