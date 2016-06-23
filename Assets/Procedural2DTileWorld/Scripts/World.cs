@@ -6,8 +6,6 @@ namespace Procedural2DTileWorld
 {
     public class World : MonoBehaviour
     {
-        [Tooltip("Size of the chunks.")] [SerializeField] private uint _chunkSize = 16;
-        [Tooltip("Prefab of chunk.")] [SerializeField] private GameObject _chunk;
         [Tooltip("Enviroment tiles settings.")] [SerializeField] private TileSettings[] _enviroment;
         [Tooltip("Terrain tiles settings.")] [SerializeField] private TileSettings[] _terrain;
         [Tooltip("Settings for procedural generation.")] [SerializeField] private Settings _settings;
@@ -32,20 +30,8 @@ namespace Procedural2DTileWorld
         // Awake is called when the script instance is being loaded
         void Awake()
         {
-            chunks = new Chunk[1, 1];
-            for (int i = 0; i < chunks.GetLength(0); i++)
-            {
-                for (int j = 0; j < chunks.GetLength(1); j++)
-                {
-                    //TODO Use object pool
-                    GameObject chunkGameObject = Instantiate(_chunk);
-                    chunks[i, j] = chunkGameObject.GetComponent<Chunk>();
-                    chunks[i, j].transform.parent = transform;
-                    chunks[i, j].transform.localPosition = Vector3.right*i + Vector3.down*j;
-                    chunks[i, j].World = this;
-                    chunks[i, j].Size = _chunkSize;
-                }
-            }
+            chunks = new Chunk[_settings.Size, _settings.Size];
+            UpdateWorldChunks(Vector2.zero);
         }
 
         // Use this for initialization
@@ -56,6 +42,32 @@ namespace Procedural2DTileWorld
         // Update is called once per frame
         void Update()
         {
+        }
+
+        /// <summary>
+        /// Update the world chunks.
+        /// </summary>
+        /// <param name="position">The position of the central chunk.</param>
+        private void UpdateWorldChunks(Vector2 position)
+        {
+            position += (Vector2.left + Vector2.up)*_settings.StreamRadius;
+            for (int i = 0; i < _settings.Size; i++)
+            {
+                for (int j = 0; j < _settings.Size; j++)
+                {
+                    //TODO Use object pool
+                    GameObject chunkGameObject = Instantiate(_settings.Chunk);
+                    chunks[i, j] = chunkGameObject.GetComponent<Chunk>();
+                    chunks[i, j].transform.parent = transform;
+                    chunks[i, j].World = this;
+                    chunks[i, j].Size = _settings.ChunkSize;
+                    chunks[i, j].Position = position;
+                    chunks[i, j].Generate();
+
+                    position += Vector2.down;
+                }
+                position += Vector2.right + Vector2.up*_settings.Size;
+            }
         }
     }
 
@@ -79,7 +91,15 @@ namespace Procedural2DTileWorld
     [Serializable]
     public struct Settings
     {
+        [Tooltip("Size of the chunks.")] [SerializeField] public uint ChunkSize;
+        [Tooltip("Prefab of chunk.")] [SerializeField] public GameObject Chunk;
         [SerializeField] public Vector2 Scale;
         [SerializeField] public Vector2 Offset;
+        [SerializeField] public uint StreamRadius;
+
+        public uint Size
+        {
+            get { return 2*StreamRadius + 1; }
+        }
     }
 }
