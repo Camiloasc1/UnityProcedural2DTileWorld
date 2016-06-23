@@ -1,0 +1,6 @@
+{
+  "name": "Unity Procedural 2D Tile World",
+  "tagline": "Procedural 2D tiled world generator made in Unity 3D.",
+  "body": "Unity Procedural 2D Tile World\r\n==============================\r\n\r\nBasic PCG software to procedurally create 2D tiled worlds in Unity 3D.\r\n\r\nIncludes some terrain tiles as:\r\n\r\n* Cobblestone\r\n* Dirt\r\n* Grass\r\n* Gravel\r\n* Podzol\r\n* Sand\r\n* Sandstone\r\n* Water\r\n\r\nAnd also some environment objects:\r\n\r\n* Dead Bush\r\n* Flower\r\n* Mushroom\r\n* Tall Grass\r\n* Tree\r\n* Water Lily\r\n\r\n**Relies on Unity's implementation of 2D Perlin noise.**",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
