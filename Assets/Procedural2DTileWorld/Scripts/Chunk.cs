@@ -22,17 +22,17 @@ namespace Procedural2DTileWorld
         public Vector2 Position
         {
             get { return _position; }
-            set { _position = value; }
+            set
+            {
+                _position = value;
+                transform.position = _position*_size;
+            }
         }
 
         public uint Size
         {
             get { return _size; }
-            set
-            {
-                _size = value;
-                Generate();
-            }
+            set { _size = value; }
         }
 
         // Awake is called when the script instance is being loaded
@@ -106,9 +106,11 @@ namespace Procedural2DTileWorld
         private void SetTerrain(int x, int y, GameObject tile)
         {
             //TODO Use object pool
+            if (terrain[x, y])
+                Destroy(terrain[x, y]);
             terrain[x, y] = Instantiate(tile);
             terrain[x, y].transform.parent = transform;
-            terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.down*y;
+            terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
 
         /// <summary>
@@ -120,9 +122,11 @@ namespace Procedural2DTileWorld
         private void SetEnviroment(int x, int y, GameObject tile)
         {
             //TODO Use object pool
+            if (enviroment[x, y])
+                Destroy(enviroment[x, y]);
             enviroment[x, y] = Instantiate(tile);
             enviroment[x, y].transform.parent = transform;
-            enviroment[x, y].transform.localPosition = Vector3.right*x + Vector3.down*y;
+            enviroment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
     }
 }
