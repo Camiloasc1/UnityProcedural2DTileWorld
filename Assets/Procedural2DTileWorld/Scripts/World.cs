@@ -6,15 +6,15 @@ namespace Procedural2DTileWorld
 {
     public class World : MonoBehaviour
     {
-        [Tooltip("Enviroment tiles settings.")] [SerializeField] private TileSettings[] _enviroment;
+        [Tooltip("Environment tiles settings.")] [SerializeField] private TileSettings[] _environment;
         [Tooltip("Terrain tiles settings.")] [SerializeField] private TileSettings[] _terrain;
         [Tooltip("Settings for procedural generation.")] [SerializeField] private Settings _settings;
 
         private Chunk[,] chunks;
 
-        public TileSettings[] Enviroment
+        public TileSettings[] Environment
         {
-            get { return _enviroment; }
+            get { return _environment; }
         }
 
         public TileSettings[] Terrain

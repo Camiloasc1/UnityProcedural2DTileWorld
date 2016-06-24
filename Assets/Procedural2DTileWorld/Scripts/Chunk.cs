@@ -11,7 +11,7 @@ namespace Procedural2DTileWorld
         [Tooltip("Size of the chunk.")] [SerializeField] private uint _size;
 
         private GameObject[,] terrain;
-        private GameObject[,] enviroment;
+        private GameObject[,] environment;
 
         public World World
         {
@@ -57,7 +57,7 @@ namespace Procedural2DTileWorld
         public void Generate()
         {
             terrain = new GameObject[_size, _size];
-            enviroment = new GameObject[_size, _size];
+            environment = new GameObject[_size, _size];
             for (int x = 0; x < _size; x++)
             {
                 for (int y = 0; y < _size; y++)
@@ -87,7 +87,7 @@ namespace Procedural2DTileWorld
                     break;
                 }
             }
-            foreach (var tile in _world.Enviroment)
+            foreach (var tile in _world.Environment)
             {
                 if (tile.IsInRange(value))
                 {
@@ -114,7 +114,7 @@ namespace Procedural2DTileWorld
         }
 
         /// <summary>
-        /// Set the enviroment object at (X,Y)
+        /// Set the environment object at (X,Y)
         /// </summary>
         /// <param name="x">X position.</param>
         /// <param name="y">Y position.</param>
@@ -122,11 +122,11 @@ namespace Procedural2DTileWorld
         private void SetEnviroment(int x, int y, GameObject tile)
         {
             //TODO Use object pool
-            if (enviroment[x, y])
-                Destroy(enviroment[x, y]);
-            enviroment[x, y] = Instantiate(tile);
-            enviroment[x, y].transform.parent = transform;
-            enviroment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            if (environment[x, y])
+                Destroy(environment[x, y]);
+            environment[x, y] = Instantiate(tile);
+            environment[x, y].transform.parent = transform;
+            environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
     }
 }
