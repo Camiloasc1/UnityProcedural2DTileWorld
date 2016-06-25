@@ -10,8 +10,8 @@ namespace Procedural2DTileWorld
         [Tooltip("(X,Y) Position in tiled world.")] [SerializeField] private Vector2 _position;
         [Tooltip("Size of the chunk.")] [SerializeField] private uint _size;
 
-        private GameObject[,] terrain;
-        private GameObject[,] environment;
+        private GameObject[,] _terrain;
+        private GameObject[,] _environment;
 
         public World World
         {
@@ -56,8 +56,8 @@ namespace Procedural2DTileWorld
         /// </summary>
         public void Generate()
         {
-            terrain = new GameObject[_size, _size];
-            environment = new GameObject[_size, _size];
+            _terrain = new GameObject[_size, _size];
+            _environment = new GameObject[_size, _size];
             for (int x = 0; x < _size; x++)
             {
                 for (int y = 0; y < _size; y++)
@@ -74,14 +74,21 @@ namespace Procedural2DTileWorld
         /// <param name="y">Y position.</param>
         private void Generate(int x, int y)
         {
-            float value = Mathf.PerlinNoise(
-                (_position.x*_size + x)*_world.Settings.Scale.x + _world.Settings.Offset.x,
-                (_position.y*_size + y)*_world.Settings.Scale.y + _world.Settings.Offset.y
+            float height = Mathf.PerlinNoise(
+                (_position.x*_size + x)*_world.Settings.HeightMap.Scale.x + _world.Settings.HeightMap.Offset.x,
+                (_position.y*_size + y)*_world.Settings.HeightMap.Scale.y + _world.Settings.HeightMap.Offset.y
                 );
-            value = Mathf.Clamp01(value);
+            height = Mathf.Clamp01(height);
+            float probability = Mathf.PerlinNoise(
+                (_position.x*_size + x)*_world.Settings.SpawnProbability.Scale.x +
+                _world.Settings.SpawnProbability.Offset.x,
+                (_position.y*_size + y)*_world.Settings.SpawnProbability.Scale.y +
+                _world.Settings.SpawnProbability.Offset.y
+                );
+            probability = Mathf.Clamp01(probability);
             foreach (var tile in _world.Terrain)
             {
-                if (tile.IsInRange(value))
+                if (tile.CanSpawn(height, probability))
                 {
                     SetTerrain(x, y, tile.Prefab);
                     break;
@@ -89,7 +96,7 @@ namespace Procedural2DTileWorld
             }
             foreach (var tile in _world.Environment)
             {
-                if (tile.IsInRange(value))
+                if (tile.CanSpawn(height, probability))
                 {
                     SetEnviroment(x, y, tile.Prefab);
                     break;
@@ -106,11 +113,11 @@ namespace Procedural2DTileWorld
         private void SetTerrain(int x, int y, GameObject tile)
         {
             //TODO Use object pool
-            if (terrain[x, y])
-                Destroy(terrain[x, y]);
-            terrain[x, y] = Instantiate(tile);
-            terrain[x, y].transform.parent = transform;
-            terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            if (_terrain[x, y])
+                Destroy(_terrain[x, y]);
+            _terrain[x, y] = Instantiate(tile);
+            _terrain[x, y].transform.parent = transform;
+            _terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
 
         /// <summary>
@@ -122,11 +129,11 @@ namespace Procedural2DTileWorld
         private void SetEnviroment(int x, int y, GameObject tile)
         {
             //TODO Use object pool
-            if (environment[x, y])
-                Destroy(environment[x, y]);
-            environment[x, y] = Instantiate(tile);
-            environment[x, y].transform.parent = transform;
-            environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            if (_environment[x, y])
+                Destroy(_environment[x, y]);
+            _environment[x, y] = Instantiate(tile);
+            _environment[x, y].transform.parent = transform;
+            _environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
     }
 }

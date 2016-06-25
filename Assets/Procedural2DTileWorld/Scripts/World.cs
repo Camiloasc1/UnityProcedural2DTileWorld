@@ -10,7 +10,7 @@ namespace Procedural2DTileWorld
         [Tooltip("Terrain tiles settings.")] [SerializeField] private TileSettings[] _terrain;
         [Tooltip("Settings for procedural generation.")] [SerializeField] private Settings _settings;
 
-        private Chunk[,] chunks;
+        private Chunk[,] _chunks;
 
         public TileSettings[] Environment
         {
@@ -30,8 +30,8 @@ namespace Procedural2DTileWorld
         // Awake is called when the script instance is being loaded
         void Awake()
         {
-            chunks = new Chunk[_settings.Size, _settings.Size];
-            UpdateWorldChunks(Vector2.zero);
+            _chunks = new Chunk[_settings.Size, _settings.Size];
+            GenerateWorld(Vector2.zero);
         }
 
         // Use this for initialization
@@ -45,10 +45,10 @@ namespace Procedural2DTileWorld
         }
 
         /// <summary>
-        /// Update the world chunks.
+        /// Populate the world generating the chunks around a central position.
         /// </summary>
         /// <param name="position">The position of the central chunk.</param>
-        private void UpdateWorldChunks(Vector2 position)
+        private void GenerateWorld(Vector2 position)
         {
             position += (Vector2.left + Vector2.up)*_settings.StreamRadius;
             for (int i = 0; i < _settings.Size; i++)
@@ -56,21 +56,32 @@ namespace Procedural2DTileWorld
                 for (int j = 0; j < _settings.Size; j++)
                 {
                     //TODO Use object pool
-                    GameObject chunkGameObject = Instantiate(_settings.Chunk);
-                    chunks[i, j] = chunkGameObject.GetComponent<Chunk>();
-                    chunks[i, j].transform.parent = transform;
-                    chunks[i, j].World = this;
-                    chunks[i, j].Size = _settings.ChunkSize;
-                    chunks[i, j].Position = position;
-                    chunks[i, j].Generate();
-
+                    if (_chunks[i, j])
+                        Destroy(_chunks[i, j]);
+                    _chunks[i, j] = GenerateChunk(position);
                     position += Vector2.down;
                 }
                 position += Vector2.right + Vector2.up*_settings.Size;
             }
         }
-    }
 
+        /// <summary>
+        /// Generate an individual chunk.
+        /// </summary>
+        /// <param name="position">The position of the chunk</param>
+        private Chunk GenerateChunk(Vector2 position)
+        {
+            //TODO Use object pool
+            GameObject chunkGameObject = Instantiate(_settings.Chunk);
+            var chunk = chunkGameObject.GetComponent<Chunk>();
+            chunk.transform.parent = transform;
+            chunk.World = this;
+            chunk.Size = _settings.ChunkSize;
+            chunk.Position = position;
+            chunk.Generate();
+            return chunk;
+        }
+    }
 
     [Serializable]
     public struct TileSettings
@@ -82,10 +93,29 @@ namespace Procedural2DTileWorld
         [Tooltip("Use conditional spawn.")] [SerializeField] public bool UseProbability;
         [Tooltip("The probability to spawn.")] [Range(0.0f, 1.0f)] [SerializeField] public float Probability;
 
-        public bool IsInRange(float value)
+        public bool IsInHeightRange(float height)
         {
-            return MinHeight <= value && value <= MaxHeight;
+            return MinHeight <= height && height <= MaxHeight;
         }
+
+        public bool IsInProbabilityRange(float probability)
+        {
+            if (UseProbability)
+                return probability < Probability;
+            return true;
+        }
+
+        public bool CanSpawn(float height, float probability)
+        {
+            return IsInHeightRange(height) && IsInProbabilityRange(probability);
+        }
+    }
+
+    [Serializable]
+    public struct NoiseSettings
+    {
+        [Tooltip("Scale multiplier.")] [SerializeField] public Vector2 Scale;
+        [Tooltip("Offset.")] [SerializeField] public Vector2 Offset;
     }
 
     [Serializable]
@@ -93,8 +123,8 @@ namespace Procedural2DTileWorld
     {
         [Tooltip("Size of the chunks.")] [SerializeField] public uint ChunkSize;
         [Tooltip("Prefab of chunk.")] [SerializeField] public GameObject Chunk;
-        [SerializeField] public Vector2 Scale;
-        [SerializeField] public Vector2 Offset;
+        [SerializeField] public NoiseSettings HeightMap;
+        [SerializeField] public NoiseSettings SpawnProbability;
         [SerializeField] public uint StreamRadius;
 
         public uint Size
