@@ -30,7 +30,7 @@ namespace Procedural2DTileWorld
         // Awake is called when the script instance is being loaded
         void Awake()
         {
-            _chunks = new Chunk[_settings.Size, _settings.Size];
+            _chunks = new Chunk[_settings.WorldSize, _settings.WorldSize];
             GenerateWorld(Vector2.zero);
         }
 
@@ -51,9 +51,9 @@ namespace Procedural2DTileWorld
         private void GenerateWorld(Vector2 position)
         {
             position += (Vector2.left + Vector2.up)*_settings.StreamRadius;
-            for (int i = 0; i < _settings.Size; i++)
+            for (int i = 0; i < _settings.WorldSize; i++)
             {
-                for (int j = 0; j < _settings.Size; j++)
+                for (int j = 0; j < _settings.WorldSize; j++)
                 {
                     //TODO Use object pool
                     if (_chunks[i, j])
@@ -61,7 +61,7 @@ namespace Procedural2DTileWorld
                     _chunks[i, j] = GenerateChunk(position);
                     position += Vector2.down;
                 }
-                position += Vector2.right + Vector2.up*_settings.Size;
+                position += Vector2.right + Vector2.up*_settings.WorldSize;
             }
         }
 
@@ -121,13 +121,13 @@ namespace Procedural2DTileWorld
     [Serializable]
     public struct Settings
     {
-        [Tooltip("Size of the chunks.")] [SerializeField] public uint ChunkSize;
+        [Header("Chunk Settings")] [Tooltip("Size of the chunks.")] [SerializeField] public uint ChunkSize;
         [Tooltip("Prefab of chunk.")] [SerializeField] public GameObject Chunk;
-        [SerializeField] public NoiseSettings HeightMap;
+        [Header("World Settings")] [SerializeField] public uint StreamRadius;
+        [Header("Noise Settings")] [SerializeField] public NoiseSettings HeightMap;
         [SerializeField] public NoiseSettings SpawnProbability;
-        [SerializeField] public uint StreamRadius;
 
-        public uint Size
+        public uint WorldSize
         {
             get { return 2*StreamRadius + 1; }
         }

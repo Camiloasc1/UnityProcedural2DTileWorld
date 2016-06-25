@@ -5,7 +5,6 @@ namespace Procedural2DTileWorld
 {
     public class Chunk : MonoBehaviour
     {
-        //[Header("Health TerrainSettings")]
         [Tooltip("Wich tiled world this chunk belongs")] [SerializeField] private World _world;
         [Tooltip("(X,Y) Position in tiled world.")] [SerializeField] private Vector2 _position;
         [Tooltip("Size of the chunk.")] [SerializeField] private uint _size;
