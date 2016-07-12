@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -29,7 +30,7 @@ namespace PoolingSystem
             get { return Instance; }
         }
 
-        [SerializeField] [Tooltip("Predefined pools")] private PredefinedObjectPool[] _predefinedPools;
+        [SerializeField] [Tooltip("Predefined pools.")] private PredefinedObjectPool[] _predefinedPools;
         private readonly Dictionary<GameObject, ObjectPool> _pools = new Dictionary<GameObject, ObjectPool>();
 
         /// <summary>
@@ -85,20 +86,32 @@ namespace PoolingSystem
         }
     }
 
+    [Serializable]
+    public struct PredefinedObjectPool
+    {
+        [SerializeField] [Tooltip("The base prefab of this pool.")] public GameObject Prefab;
+        [SerializeField] [Tooltip("The minimum number of objects to keep.")] public uint Min;
+        [SerializeField] [Tooltip("The maximum number of objects to keep.\n(0 = No limit.).")] public uint Max;
+        [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("The target usage ratio.")] public float UsageRatio;
+    }
+
     public interface IObjectPool
     {
         /// <summary>
         /// The prefab that defines the pool.
         /// </summary>
         GameObject Prefab { get; }
+
         /// <summary>
         /// The ammount of elements currently allocated.
         /// </summary>
         int Count { get; }
+
         /// <summary>
         /// The ammount of elements currently active.
         /// </summary>
         int ActiveCount { get; }
+
         /// <summary>
         /// The ammount of elements currently inactive.
         /// </summary>
@@ -110,12 +123,14 @@ namespace PoolingSystem
         /// </summary>
         /// <returns>A prefab instance ready to use.</returns>
         GameObject Spawn();
+
         /// <summary>
         /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
         /// </summary>
         /// <param name="transform">The transform with position and rotation to set.</param>
         /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Transform transform);
+
         /// <summary>
         /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
         /// </summary>
@@ -123,6 +138,7 @@ namespace PoolingSystem
         /// <param name="parent">The parent transform in the scene to set.</param>
         /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Transform transform, Transform parent);
+
         /// <summary>
         /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
         /// </summary>
@@ -130,6 +146,7 @@ namespace PoolingSystem
         /// <param name="rotation">The rotation to set.</param>
         /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Vector3 position, Quaternion rotation);
+
         /// <summary>
         /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
         /// </summary>
@@ -138,10 +155,12 @@ namespace PoolingSystem
         /// <param name="parent">The parent transform in the scene to set.</param>
         /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent);
+
         /// <summary>
         /// Forcedly despawn an active instance.
         /// </summary>
         void Despawn();
+
         /// <summary>
         /// Despawn the selected instance.
         /// </summary>

@@ -64,6 +64,7 @@ namespace PoolingSystem
             objectPool._usageRatio = predefinedPool.UsageRatio;
             objectPool._active.Clear();
             objectPool._inactive.Clear();
+            objectPool.Validate();
             return objectPool;
         }
 
@@ -77,6 +78,7 @@ namespace PoolingSystem
             objectPool._usageRatio = 1.0f;
             objectPool._active.Clear();
             objectPool._inactive.Clear();
+            objectPool.Validate();
             return objectPool;
         }
 
@@ -146,16 +148,18 @@ namespace PoolingSystem
         // Awake is called when the script instance is being loaded
         public void Awake()
         {
+            Validate();
         }
-    }
 
-    [Serializable]
-    public struct PredefinedObjectPool
-    {
-        [SerializeField] [Tooltip("The base prefab of this pool")] public GameObject Prefab;
-        [SerializeField] [Tooltip("The minimum number of objects to keep")] public uint Min;
-        [SerializeField] [Tooltip("The maximum number of objects to keep")] public uint Max;
-        [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("The target usage ratio")] public float UsageRatio;
+        private bool Validate()
+        {
+            if (_max > 0 && _max < _min)
+            {
+                Debug.LogError(this + ": Invalid values (Max < Min).");
+                return false;
+            }
+            return true;
+        }
     }
 
     public interface IPooleableGameObject

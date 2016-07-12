@@ -99,8 +99,11 @@ namespace Procedural2DTileWorld
             if (_terrain[x, y])
                 PoolManager.Pools[tile].Despawn(_terrain[x, y]);
             _terrain[x, y] = PoolManager.Pools[tile].Spawn();
-            _terrain[x, y].transform.parent = transform;
-            _terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            if (_terrain[x, y])
+            {
+                _terrain[x, y].transform.parent = transform;
+                _terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            }
         }
 
         /// <summary>
@@ -114,8 +117,11 @@ namespace Procedural2DTileWorld
             if (_environment[x, y])
                 PoolManager.Pools[tile].Despawn(_environment[x, y]);
             _environment[x, y] = PoolManager.Pools[tile].Spawn();
-            _environment[x, y].transform.parent = transform;
-            _environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            if (_environment[x, y])
+            {
+                _environment[x, y].transform.parent = transform;
+                _environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            }
         }
 
         // Awake is called when the script instance is being loaded
