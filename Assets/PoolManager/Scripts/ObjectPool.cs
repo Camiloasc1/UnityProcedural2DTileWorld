@@ -10,7 +10,7 @@ namespace PoolingSystem
         [SerializeField] [Tooltip("The base prefab of this pool")] private GameObject _prefab;
         [SerializeField] [Tooltip("The minimum number of objects to keep")] private uint _min;
         [SerializeField] [Tooltip("The maximum number of objects to keep")] private uint _max;
-        [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("The target usage ratio")] private float _usageRatio;
+        [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("The target usage ratio")] private float _usageRatio = 1.0f;
         private readonly HashSet<GameObject> _active = new HashSet<GameObject>();
         private readonly Stack<GameObject> _inactive = new Stack<GameObject>();
 
@@ -24,31 +24,76 @@ namespace PoolingSystem
             get { return _active.Count + _inactive.Count; }
         }
 
+        public int ActiveCount
+        {
+            get { return _active.Count; }
+        }
+
+        public int InactiveCount
+        {
+            get { return _inactive.Count; }
+        }
+
         public bool IsPredefined { get; private set; }
 
-        public void FromPredefined(PredefinedObjectPool value)
+        public uint Min
         {
-            IsPredefined = true;
-            _prefab = value.Prefab;
-            _min = value.Min;
-            _max = value.Max;
-            _usageRatio = value.UsageRatio;
+            get { return _min; }
+            set { _min = value; }
+        }
+
+        public uint Max
+        {
+            get { return _max; }
+            set { _max = value; }
+        }
+
+        public float UsageRatio
+        {
+            get { return _usageRatio; }
+            set { _usageRatio = value; }
+        }
+
+        public static ObjectPool FromPredefined(PredefinedObjectPool predefinedPool)
+        {
+            var objectPool = new GameObject(predefinedPool.Prefab.name + " Pool").AddComponent<ObjectPool>();
+            objectPool.IsPredefined = true;
+            objectPool._prefab = predefinedPool.Prefab;
+            objectPool._min = predefinedPool.Min;
+            objectPool._max = predefinedPool.Max;
+            objectPool._usageRatio = predefinedPool.UsageRatio;
+            objectPool._active.Clear();
+            objectPool._inactive.Clear();
+            return objectPool;
+        }
+
+        public static ObjectPool FromPrefab(GameObject prefab)
+        {
+            var objectPool = new GameObject(prefab.name + " Pool").AddComponent<ObjectPool>();
+            objectPool.IsPredefined = false;
+            objectPool._prefab = prefab;
+            objectPool._min = 0;
+            objectPool._max = 0;
+            objectPool._usageRatio = 1.0f;
+            objectPool._active.Clear();
+            objectPool._inactive.Clear();
+            return objectPool;
         }
 
         public GameObject Spawn()
         {
-            GameObject element;
+            GameObject instance;
             if (_inactive.Count > 0)
-                element = _inactive.Pop();
+                instance = _inactive.Pop();
             else if (_max == 0 || Count < _max)
-                element = Instantiate(_prefab);
+                instance = Instantiate(_prefab);
             else
                 return null;
-            _active.Add(element);
-            element.transform.parent = null;
-            element.SendMessage("OnSpawn", null, SendMessageOptions.DontRequireReceiver);
-            element.SetActive(true);
-            return element;
+            _active.Add(instance);
+            instance.transform.parent = null;
+            instance.SendMessage("OnSpawn", null, SendMessageOptions.DontRequireReceiver);
+            instance.SetActive(true);
+            return instance;
         }
 
         public GameObject Spawn(Transform transform)
@@ -68,13 +113,13 @@ namespace PoolingSystem
 
         public GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent)
         {
-            var element = Spawn();
-            if (!element)
-                return element;
-            element.transform.position = position;
-            element.transform.rotation = rotation;
-            element.transform.parent = parent;
-            return element;
+            var instance = Spawn();
+            if (!instance)
+                return instance;
+            instance.transform.position = position;
+            instance.transform.rotation = rotation;
+            instance.transform.parent = parent;
+            return instance;
         }
 
         public void Despawn()
@@ -86,19 +131,19 @@ namespace PoolingSystem
             }
         }
 
-        public void Despawn(GameObject element)
+        public void Despawn(GameObject instance)
         {
-            if (!_active.Contains(element))
+            if (!_active.Contains(instance))
                 return;
 
-            _active.Remove(element);
-            _inactive.Push(element);
-            element.SetActive(false);
-            element.SendMessage("OnDespawn", null, SendMessageOptions.DontRequireReceiver);
-            element.transform.parent = transform;
+            _active.Remove(instance);
+            _inactive.Push(instance);
+            instance.SetActive(false);
+            instance.SendMessage("OnDespawn", null, SendMessageOptions.DontRequireReceiver);
+            instance.transform.parent = transform;
         }
 
-        // Awake is called when the script element is being loaded
+        // Awake is called when the script instance is being loaded
         public void Awake()
         {
         }
@@ -115,7 +160,14 @@ namespace PoolingSystem
 
     public interface IPooleableGameObject
     {
+        /// <summary>
+        /// OnSpawn is called when the GameObject is being spawned.
+        /// </summary>
         void OnSpawn();
+
+        /// <summary>
+        /// OnSpawn is called when the GameObject is being despawned.
+        /// </summary>
         void OnDespawn();
     }
 }

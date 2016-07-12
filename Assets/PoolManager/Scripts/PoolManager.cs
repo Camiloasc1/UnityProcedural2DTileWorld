@@ -52,9 +52,8 @@ namespace PoolingSystem
                 if (poolManager._predefinedPools != null)
                     foreach (var predefinedPool in poolManager._predefinedPools)
                     {
-                        var pool = new GameObject(predefinedPool.Prefab.name + " Pool").AddComponent<ObjectPool>();
+                        var pool = ObjectPool.FromPredefined(predefinedPool);
                         pool.transform.parent = transform;
-                        pool.FromPredefined(predefinedPool);
                         this[pool.Prefab] = pool;
                     }
         }
