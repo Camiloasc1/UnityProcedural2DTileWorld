@@ -8,6 +8,9 @@ namespace PoolingSystem
     {
         private static PoolManager _instance;
 
+        /// <summary>
+        /// The singleton instance of pool manager in this scene.
+        /// </summary>
         public static PoolManager Instance
         {
             get
@@ -18,13 +21,26 @@ namespace PoolingSystem
             }
         }
 
+        /// <summary>
+        /// The singleton instance of pool manager in this scene.
+        /// </summary>
+        public static PoolManager Pools
+        {
+            get { return Instance; }
+        }
+
         [SerializeField] [Tooltip("Predefined pools")] private PredefinedObjectPool[] _predefinedPools;
         private readonly Dictionary<GameObject, ObjectPool> _pools = new Dictionary<GameObject, ObjectPool>();
 
-        public ObjectPool this[GameObject key]
+        /// <summary>
+        /// Access to an specified pool.
+        /// </summary>
+        /// <param name="prefab">The prefab that defines the pool.</param>
+        /// <returns>The pool asociated with the prefab.</returns>
+        public ObjectPool this[GameObject prefab]
         {
-            get { return _pools[key]; }
-            protected set { _pools[key] = value; }
+            get { return _pools[prefab]; }
+            protected set { _pools[prefab] = value; }
         }
 
         /// <summary>
@@ -85,15 +101,65 @@ namespace PoolingSystem
 
     public interface IObjectPool
     {
+        /// <summary>
+        /// The prefab that defines the pool.
+        /// </summary>
         GameObject Prefab { get; }
+        /// <summary>
+        /// The ammount of elements currently allocated.
+        /// </summary>
         int Count { get; }
+        /// <summary>
+        /// The ammount of elements currently active.
+        /// </summary>
+        int ActiveCount { get; }
+        /// <summary>
+        /// The ammount of elements currently inactive.
+        /// </summary>
+        int InactiveCount { get; }
 
+        /// <summary>
+        /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
+        /// Internally called by the other Spawn() methods.
+        /// </summary>
+        /// <returns>A prefab instance ready to use.</returns>
         GameObject Spawn();
+        /// <summary>
+        /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
+        /// </summary>
+        /// <param name="transform">The transform with position and rotation to set.</param>
+        /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Transform transform);
+        /// <summary>
+        /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
+        /// </summary>
+        /// <param name="transform">The transform with position and rotation to set.</param>
+        /// <param name="parent">The parent transform in the scene to set.</param>
+        /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Transform transform, Transform parent);
+        /// <summary>
+        /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
+        /// </summary>
+        /// <param name="position">The position to set.</param>
+        /// <param name="rotation">The rotation to set.</param>
+        /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Vector3 position, Quaternion rotation);
+        /// <summary>
+        /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
+        /// </summary>
+        /// <param name="position">The position to set.</param>
+        /// <param name="rotation">The rotation to set.</param>
+        /// <param name="parent">The parent transform in the scene to set.</param>
+        /// <returns>A prefab instance ready to use</returns>
         GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent);
+        /// <summary>
+        /// Forcedly despawn an active instance.
+        /// </summary>
         void Despawn();
-        void Despawn(GameObject element);
+        /// <summary>
+        /// Despawn the selected instance.
+        /// </summary>
+        /// <param name="instance">The instance to despawn</param>
+        void Despawn(GameObject instance);
     }
 }
