@@ -35,22 +35,6 @@ namespace Procedural2DTileWorld
             set { _size = value; }
         }
 
-        // Awake is called when the script instance is being loaded
-        void Awake()
-        {
-            Generate();
-        }
-
-        // Use this for initialization
-        void Start()
-        {
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-        }
-
         /// <summary>
         /// Generate all the tiles in this chunk.
         /// </summary>
@@ -113,8 +97,8 @@ namespace Procedural2DTileWorld
         private void SetTerrain(int x, int y, GameObject tile)
         {
             if (_terrain[x, y])
-                PoolManager.Instance[tile].Despawn(_terrain[x, y]);
-            _terrain[x, y] = PoolManager.Instance[tile].Spawn();
+                PoolManager.Pools[tile].Despawn(_terrain[x, y]);
+            _terrain[x, y] = PoolManager.Pools[tile].Spawn();
             _terrain[x, y].transform.parent = transform;
             _terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
@@ -128,10 +112,16 @@ namespace Procedural2DTileWorld
         private void SetEnviroment(int x, int y, GameObject tile)
         {
             if (_environment[x, y])
-                PoolManager.Instance[tile].Despawn(_environment[x, y]);
-            _environment[x, y] = PoolManager.Instance[tile].Spawn();
+                PoolManager.Pools[tile].Despawn(_environment[x, y]);
+            _environment[x, y] = PoolManager.Pools[tile].Spawn();
             _environment[x, y].transform.parent = transform;
             _environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+        }
+
+        // Awake is called when the script instance is being loaded
+        public void Awake()
+        {
+            Generate();
         }
     }
 }
