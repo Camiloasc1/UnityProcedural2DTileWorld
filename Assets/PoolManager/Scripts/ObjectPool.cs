@@ -19,6 +19,11 @@ namespace PoolingSystem
             get { return _prefab; }
         }
 
+        public int Count
+        {
+            get { return _active.Count + _inactive.Count; }
+        }
+
         public bool IsPredefined { get; private set; }
 
         public void FromPredefined(PredefinedObjectPool value)
@@ -29,16 +34,19 @@ namespace PoolingSystem
             _max = value.Max;
             _usageRatio = value.UsageRatio;
         }
-        
+
         public GameObject Spawn()
         {
-            if (_inactive.Count == 0)
+            GameObject element;
+            if (_inactive.Count > 0)
+                element = _inactive.Pop();
+            else if (_max == 0 || Count < _max)
+                element = Instantiate(_prefab);
+            else
                 return null;
-
-            var element = _inactive.Pop();
             _active.Add(element);
             element.transform.parent = null;
-            element.SendMessage("OnSpawn");
+            element.SendMessage("OnSpawn", null, SendMessageOptions.DontRequireReceiver);
             element.SetActive(true);
             return element;
         }
@@ -60,10 +68,9 @@ namespace PoolingSystem
 
         public GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent)
         {
-            if (_inactive.Count == 0)
-                return null;
-
             var element = Spawn();
+            if (!element)
+                return element;
             element.transform.position = position;
             element.transform.rotation = rotation;
             element.transform.parent = parent;
@@ -87,7 +94,7 @@ namespace PoolingSystem
             _active.Remove(element);
             _inactive.Push(element);
             element.SetActive(false);
-            element.SendMessage("OnDespawn");
+            element.SendMessage("OnDespawn", null, SendMessageOptions.DontRequireReceiver);
             element.transform.parent = transform;
         }
 

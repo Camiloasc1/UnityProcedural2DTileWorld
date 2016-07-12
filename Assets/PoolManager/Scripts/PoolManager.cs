@@ -13,7 +13,7 @@ namespace PoolingSystem
             get
             {
                 if (!_instance)
-                    _instance = new GameObject("PoolManager").AddComponent<PoolManager>();
+                    _instance = new GameObject().AddComponent<PoolManager>();
                 return _instance;
             }
         }
@@ -27,26 +27,39 @@ namespace PoolingSystem
             protected set { _pools[key] = value; }
         }
 
+        /// <summary>
+        /// Load all the pools defined in the inspector.
+        /// </summary>
+        private void LoadPredefined()
+        {
+            foreach (var poolManager in FindObjectsOfType<PoolManager>())
+                if (poolManager._predefinedPools != null)
+                    foreach (var predefinedPool in poolManager._predefinedPools)
+                    {
+                        var pool = new GameObject(predefinedPool.Prefab.name + " Pool").AddComponent<ObjectPool>();
+                        pool.transform.parent = transform;
+                        pool.FromPredefined(predefinedPool);
+                        this[pool.Prefab] = pool;
+                    }
+        }
+
         // Awake is called when the script instance is being loaded
         public void Awake()
         {
             if (!_instance)
                 _instance = this;
             else if (this != _instance)
-            {
-                Destroy(this);
                 return;
-            }
 
-            //Load all the pools defined in the inspector.
-            if (_predefinedPools != null)
-                foreach (var predefinedPool in _predefinedPools)
-                {
-                    var pool = new GameObject(predefinedPool.Prefab.name + "Pool").AddComponent<ObjectPool>();
-                    pool.transform.parent = transform;
-                    pool.FromPredefined(predefinedPool);
-                    this[pool.Prefab] = pool;
-                }
+            name = "Pool Manager";
+            LoadPredefined();
+        }
+
+        // Start is called just before any of the Update methods is called the first time
+        public void Start()
+        {
+            if (this != _instance)
+                Destroy(this);
         }
 
         // This function is called when the MonoBehaviour will be destroyed
@@ -72,6 +85,9 @@ namespace PoolingSystem
 
     public interface IObjectPool
     {
+        GameObject Prefab { get; }
+        int Count { get; }
+
         GameObject Spawn();
         GameObject Spawn(Transform transform);
         GameObject Spawn(Transform transform, Transform parent);

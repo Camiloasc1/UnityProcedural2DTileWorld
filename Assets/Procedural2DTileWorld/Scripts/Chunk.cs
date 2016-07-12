@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PoolingSystem;
 
 namespace Procedural2DTileWorld
 {
@@ -111,10 +112,9 @@ namespace Procedural2DTileWorld
         /// <param name="tile">The tile to set.</param>
         private void SetTerrain(int x, int y, GameObject tile)
         {
-            //TODO Use object pool
             if (_terrain[x, y])
-                Destroy(_terrain[x, y]);
-            _terrain[x, y] = Instantiate(tile);
+                PoolManager.Instance[tile].Despawn(_terrain[x, y]);
+            _terrain[x, y] = PoolManager.Instance[tile].Spawn();
             _terrain[x, y].transform.parent = transform;
             _terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
@@ -127,10 +127,9 @@ namespace Procedural2DTileWorld
         /// <param name="tile">The tile to set.</param>
         private void SetEnviroment(int x, int y, GameObject tile)
         {
-            //TODO Use object pool
             if (_environment[x, y])
-                Destroy(_environment[x, y]);
-            _environment[x, y] = Instantiate(tile);
+                PoolManager.Instance[tile].Despawn(_environment[x, y]);
+            _environment[x, y] = PoolManager.Instance[tile].Spawn();
             _environment[x, y].transform.parent = transform;
             _environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
         }
