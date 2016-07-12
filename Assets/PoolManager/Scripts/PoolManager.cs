@@ -85,19 +85,6 @@ namespace PoolingSystem
         }
     }
 
-    class InstanceIDComparer : IEqualityComparer<Object>
-    {
-        public bool Equals(Object x, Object y)
-        {
-            return x.GetInstanceID() == y.GetInstanceID();
-        }
-
-        public int GetHashCode(Object obj)
-        {
-            return obj.GetInstanceID();
-        }
-    }
-
     public interface IObjectPool
     {
         /// <summary>
