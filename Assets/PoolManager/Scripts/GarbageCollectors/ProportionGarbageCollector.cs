@@ -5,7 +5,7 @@ using System.Collections;
 namespace PoolingSystem.GarbageCollectors
 {
     [Serializable]
-    public class FixedGarbageCollector :IGarbageCollector
+    public class ProportionGarbageCollector : IGarbageCollector
     {
         public void Setup(GarbageCollectorParameters garbageCollectorParameters)
         {
