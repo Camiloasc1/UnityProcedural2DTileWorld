@@ -5,7 +5,7 @@ using System.Collections;
 namespace PoolingSystem.Factories
 {
     [Serializable]
-    public class FixedFactory : IFactory
+    public class ProportionFactory : IFactory
     {
         public void Setup(FactoryParameters factoryParameters)
         {
