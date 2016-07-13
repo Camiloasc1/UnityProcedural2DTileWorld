@@ -95,8 +95,12 @@ namespace PoolingSystem
     [Serializable]
     public struct PoolingSetting
     {
-        [SerializeField] public FactoryProviders Factory;
-        [SerializeField] public GarbageCollectorProviders GarbageCollector;
+        [SerializeField] [Tooltip("Wich Factory to use.")] public FactoryProviders Factory;
+        [SerializeField] [Tooltip("Wich Garbage Collector to use.")] public GarbageCollectorProviders GarbageCollector;
+        [SerializeField] [Tooltip("Parameters for the Factory.")] public FactoryParameters FactoryParameters;
+
+        [SerializeField] [Tooltip("Parameters for the Garbage Collector.")] public GarbageCollectorParameters
+            GarbageCollectorParameters;
     }
 
     [Serializable]
