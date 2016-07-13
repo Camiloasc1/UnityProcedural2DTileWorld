@@ -10,7 +10,7 @@ namespace PoolingSystem
         [SerializeField] [Tooltip("The base prefab of this pool")] private GameObject _prefab;
         [SerializeField] [Tooltip("The minimum number of objects to keep")] private uint _min;
         [SerializeField] [Tooltip("The maximum number of objects to keep")] private uint _max;
-        [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("The target usage ratio")] private float _usageRatio = 1.0f;
+        [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("The target usage ratio")] private float _usageRatio;
         private readonly HashSet<GameObject> _active = new HashSet<GameObject>();
         private readonly Stack<GameObject> _inactive = new Stack<GameObject>();
 
@@ -54,6 +54,11 @@ namespace PoolingSystem
             set { _usageRatio = value; }
         }
 
+        /// <summary>
+        /// Create a new pool from a PredefinedObjectPool.
+        /// </summary>
+        /// <param name="predefinedPool">The parameters to set.</param>
+        /// <returns>A new GameObject with an ObjectPool component.</returns>
         public static ObjectPool FromPredefined(PredefinedObjectPool predefinedPool)
         {
             var objectPool = new GameObject(predefinedPool.Prefab.name + " Pool").AddComponent<ObjectPool>();
@@ -68,6 +73,11 @@ namespace PoolingSystem
             return objectPool;
         }
 
+        /// <summary>
+        /// Create a new pool from a PredefinedObjectPool.
+        /// </summary>
+        /// <param name="prefab">The prefab parameter to set.</param>
+        /// <returns>A new GameObject with an ObjectPool component.</returns>
         public static ObjectPool FromPrefab(GameObject prefab)
         {
             var objectPool = new GameObject(prefab.name + " Pool").AddComponent<ObjectPool>();
@@ -145,12 +155,6 @@ namespace PoolingSystem
             instance.transform.parent = transform;
         }
 
-        // Awake is called when the script instance is being loaded
-        public void Awake()
-        {
-            Validate();
-        }
-
         private bool Validate()
         {
             if (_max > 0 && _max < _min)
@@ -159,6 +163,12 @@ namespace PoolingSystem
                 return false;
             }
             return true;
+        }
+
+        // Awake is called when the script instance is being loaded
+        public void Awake()
+        {
+            Validate();
         }
     }
 

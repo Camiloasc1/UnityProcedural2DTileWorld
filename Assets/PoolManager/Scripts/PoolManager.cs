@@ -2,6 +2,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using PoolingSystem.Factories;
+using PoolingSystem.GarbageCollectors;
 
 namespace PoolingSystem
 {
@@ -32,6 +34,7 @@ namespace PoolingSystem
 
         [SerializeField] [Tooltip("Predefined pools.")] private PredefinedObjectPool[] _predefinedPools;
         private readonly Dictionary<GameObject, ObjectPool> _pools = new Dictionary<GameObject, ObjectPool>();
+        [SerializeField] private PoolingSetting poolingSetting;
 
         /// <summary>
         /// Access to an specified pool.
@@ -50,13 +53,16 @@ namespace PoolingSystem
         private void LoadPredefined()
         {
             foreach (var poolManager in FindObjectsOfType<PoolManager>())
-                if (poolManager._predefinedPools != null)
-                    foreach (var predefinedPool in poolManager._predefinedPools)
-                    {
-                        var pool = ObjectPool.FromPredefined(predefinedPool);
-                        pool.transform.parent = transform;
-                        this[pool.Prefab] = pool;
-                    }
+            {
+                if (poolManager._predefinedPools == null)
+                    continue;
+                foreach (var predefinedPool in poolManager._predefinedPools)
+                {
+                    var pool = ObjectPool.FromPredefined(predefinedPool);
+                    pool.transform.parent = transform;
+                    this[pool.Prefab] = pool;
+                }
+            }
         }
 
         // Awake is called when the script instance is being loaded
@@ -87,12 +93,19 @@ namespace PoolingSystem
     }
 
     [Serializable]
+    public struct PoolingSetting
+    {
+        [SerializeField] public FactoryProviders Factory;
+        [SerializeField] public GarbageCollectorProviders GarbageCollector;
+    }
+
+    [Serializable]
     public struct PredefinedObjectPool
     {
         [SerializeField] [Tooltip("The base prefab of this pool.")] public GameObject Prefab;
         [SerializeField] [Tooltip("The minimum number of objects to keep.")] public uint Min;
         [SerializeField] [Tooltip("The maximum number of objects to keep.\n(0 = No limit.).")] public uint Max;
-        [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("The target usage ratio.")] public float UsageRatio;
+        [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("The target usage ratio.")] public float UsageRatio;
     }
 
     public interface IObjectPool
