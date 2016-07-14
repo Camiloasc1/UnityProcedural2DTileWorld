@@ -118,11 +118,11 @@ namespace PoolingSystem
         // Awake is called when the script instance is being loaded
         public void Awake()
         {
-            if (!_instance)
-            {
-                _instance = this;
-                Setup();
-            }
+            if (_instance)
+                return;
+
+            _instance = this;
+            Setup();
         }
 
         // Start is called just before any of the Update methods is called the first time

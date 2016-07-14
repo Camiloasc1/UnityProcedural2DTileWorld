@@ -19,7 +19,7 @@ namespace PoolingSystem.GarbageCollectors
             var count = 0u;
             foreach (var objectPool in PoolManager.Instance)
             {
-                while (objectPool.PreviousRatio < objectPool.Ratio)
+                while (PreviousRatio(objectPool) < objectPool.Ratio)
                 {
                     if (objectPool.Destroy())
                     {
@@ -30,6 +30,11 @@ namespace PoolingSystem.GarbageCollectors
                         break;
                 }
             }
+        }
+
+        private static float PreviousRatio(IObjectPool objectPool)
+        {
+            return (float) objectPool.ActiveCount/ (objectPool.Count - 1);
         }
     }
 }

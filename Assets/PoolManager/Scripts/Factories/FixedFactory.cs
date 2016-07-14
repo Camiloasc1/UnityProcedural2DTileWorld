@@ -19,7 +19,7 @@ namespace PoolingSystem.Factories
             var count = 0u;
             foreach (var objectPool in PoolManager.Instance)
             {
-                while (objectPool.NextRatio > objectPool.Ratio)
+                while (NextRatio(objectPool) > objectPool.Ratio)
                 {
                     if (objectPool.Instantiate())
                     {
@@ -30,6 +30,11 @@ namespace PoolingSystem.Factories
                         break;
                 }
             }
+        }
+
+        private static float NextRatio(IObjectPool objectPool)
+        {
+            return (float) objectPool.ActiveCount/(objectPool.Count + 1);
         }
     }
 }

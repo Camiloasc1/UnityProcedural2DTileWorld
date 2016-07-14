@@ -54,17 +54,7 @@ namespace PoolingSystem
 
         public float CurrentRatio
         {
-            get { return (float) ActiveCount/(float) Count; }
-        }
-
-        public float NextRatio
-        {
-            get { return (float) ActiveCount/(float) (Count + 1); }
-        }
-
-        public float PreviousRatio
-        {
-            get { return (float) ActiveCount/(float) (Count - 1); }
+            get { return (float) ActiveCount/Count; }
         }
 
         public bool IsPredefined { get; private set; }

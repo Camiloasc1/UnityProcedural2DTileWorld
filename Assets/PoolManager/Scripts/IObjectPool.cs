@@ -46,16 +46,6 @@ namespace PoolingSystem
         float CurrentRatio { get; }
 
         /// <summary>
-        /// The ratio after creating one instance.
-        /// </summary>
-        float NextRatio { get; }
-
-        /// <summary>
-        /// The ratio after destroying one instance.
-        /// </summary>
-        float PreviousRatio { get; }
-
-        /// <summary>
         /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
         /// Internally called by the other Spawn() methods.
         /// </summary>
