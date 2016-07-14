@@ -157,12 +157,6 @@ namespace PoolingSystem
             GarbageCollectorParameters;
     }
 
-    public interface ITaskRunner<T>
-    {
-        void Setup(T parameters);
-        void Run();
-    }
-
     [Serializable]
     public struct PredefinedObjectPool
     {
@@ -170,5 +164,11 @@ namespace PoolingSystem
         [SerializeField] [Tooltip("The minimum number of instances to keep.")] public uint Min;
         [SerializeField] [Tooltip("The maximum number of instances to keep.\n(0 = No limit.).")] public uint Max;
         [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("The target usage ratio.")] public float UsageRatio;
+    }
+
+    public interface ITaskRunner<T>
+    {
+        void Setup(T parameters);
+        void Run();
     }
 }

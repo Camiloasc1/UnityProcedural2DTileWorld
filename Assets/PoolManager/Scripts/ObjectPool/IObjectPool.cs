@@ -105,4 +105,17 @@ namespace PoolingSystem
         /// </summary>
         bool Destroy();
     }
+
+    public interface IPooleableGameObject
+    {
+        /// <summary>
+        /// OnSpawn is called when the GameObject is being spawned.
+        /// </summary>
+        void OnSpawn();
+
+        /// <summary>
+        /// OnSpawn is called when the GameObject is being despawned.
+        /// </summary>
+        void OnDespawn();
+    }
 }
