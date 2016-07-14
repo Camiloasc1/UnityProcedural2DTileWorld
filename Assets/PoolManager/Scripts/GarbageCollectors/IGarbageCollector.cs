@@ -3,10 +3,10 @@ using System.Collections;
 
 namespace PoolingSystem.GarbageCollectors
 {
-    public interface IGarbageCollector
+    public interface IGarbageCollector : ITaskRunner<GarbageCollectorParameters>
     {
-        void Setup(GarbageCollectorParameters garbageCollectorParameters);
-        void Run();
+        new void Setup(GarbageCollectorParameters garbageCollectorParameters);
+        new void Run();
     }
 
     public struct GarbageCollectorParameters
@@ -26,14 +26,17 @@ namespace PoolingSystem.GarbageCollectors
 
     public static class Providers
     {
+        private static readonly FixedGarbageCollector FixedGarbageCollector = new FixedGarbageCollector();
+        private static readonly ProportionGarbageCollector ProportionGarbageCollector = new ProportionGarbageCollector();
+
         public static IGarbageCollector GetInstance(this GarbageCollectorProviders factoryProvider)
         {
             switch (factoryProvider)
             {
                 case GarbageCollectorProviders.FixedGarbageCollector:
-                    return new FixedGarbageCollector();
+                    return FixedGarbageCollector;
                 case GarbageCollectorProviders.ProportionGarbageCollector:
-                    return new ProportionGarbageCollector();
+                    return ProportionGarbageCollector;
                 default:
                     return null;
             }

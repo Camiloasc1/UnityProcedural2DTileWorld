@@ -19,7 +19,15 @@ namespace PoolingSystem
             get
             {
                 if (!_instance)
+                {
+                    _instance = FindObjectOfType<PoolManager>();
+                    _instance.Setup();
+                }
+                if (!_instance)
+                {
                     _instance = new GameObject().AddComponent<PoolManager>();
+                    _instance.Setup();
+                }
                 return _instance;
             }
         }
@@ -33,6 +41,7 @@ namespace PoolingSystem
         }
 
         [SerializeField] [Tooltip("Predefined pools.")] private PredefinedObjectPool[] _predefinedPools;
+        private bool _initialized;
         private readonly Dictionary<GameObject, ObjectPool> _pools = new Dictionary<GameObject, ObjectPool>();
         [SerializeField] private PoolingSetting poolingSetting;
 
@@ -62,19 +71,27 @@ namespace PoolingSystem
                     pool.transform.parent = transform;
                     this[pool.Prefab] = pool;
                 }
+                poolManager._predefinedPools = null;
             }
+        }
+
+        private void Setup()
+        {
+            if (_initialized)
+                return;
+            name = "Pool Manager";
+            LoadPredefined();
+            _initialized = true;
         }
 
         // Awake is called when the script instance is being loaded
         public void Awake()
         {
             if (!_instance)
+            {
                 _instance = this;
-            else if (this != _instance)
-                return;
-
-            name = "Pool Manager";
-            LoadPredefined();
+                Setup();
+            }
         }
 
         // Start is called just before any of the Update methods is called the first time
@@ -101,6 +118,12 @@ namespace PoolingSystem
 
         [SerializeField] [Tooltip("Parameters for the Garbage Collector.")] public GarbageCollectorParameters
             GarbageCollectorParameters;
+    }
+
+    public interface ITaskRunner<T>
+    {
+        void Setup(T parameters);
+        void Run();
     }
 
     [Serializable]

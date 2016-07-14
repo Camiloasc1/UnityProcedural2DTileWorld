@@ -4,10 +4,10 @@ using System.Collections;
 
 namespace PoolingSystem.Factories
 {
-    public interface IFactory
+    public interface IFactory: ITaskRunner<FactoryParameters>
     {
-        void Setup(FactoryParameters factoryParameters);
-        void Run();
+        new void Setup(FactoryParameters factoryParameters);
+        new void Run();
     }
 
     [Serializable]
@@ -28,14 +28,17 @@ namespace PoolingSystem.Factories
 
     public static class Providers
     {
+        private static readonly FixedFactory FixedFactory = new FixedFactory();
+        private static readonly ProportionFactory ProportionFactory = new ProportionFactory();
+
         public static IFactory GetInstance(this FactoryProviders factoryProvider)
         {
             switch (factoryProvider)
             {
                 case FactoryProviders.FixedFactory:
-                    return new FixedFactory();
+                    return FixedFactory;
                 case FactoryProviders.ProportionFactory:
-                    return new ProportionFactory();
+                    return ProportionFactory;
                 default:
                     return null;
             }
