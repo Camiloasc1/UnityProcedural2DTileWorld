@@ -44,6 +44,7 @@ namespace PoolingSystem
         private bool _initialized;
         private readonly Dictionary<GameObject, ObjectPool> _pools = new Dictionary<GameObject, ObjectPool>();
         [SerializeField] private PoolingSetting poolingSetting;
+        private IEnumerator _worker;
 
         /// <summary>
         /// Access to an specified pool.
@@ -75,11 +76,15 @@ namespace PoolingSystem
             }
         }
 
+        /// <summary>
+        /// Initialize, set name and tag.
+        /// </summary>
         private void Setup()
         {
             if (_initialized)
                 return;
             name = "Pool Manager";
+            tag = "Pool Manager";
             LoadPredefined();
             _initialized = true;
         }
@@ -99,13 +104,31 @@ namespace PoolingSystem
         {
             if (this != _instance)
                 Destroy(this);
+
+            _worker = Worker();
+            StartCoroutine(_worker);
         }
 
         // This function is called when the MonoBehaviour will be destroyed
         public void OnDestroy()
         {
-            if (_instance == this)
-                _instance = null;
+            if (_instance != this)
+                return;
+
+            _instance = null;
+            StopCoroutine(_worker);
+        }
+
+        private IEnumerator Worker()
+        {
+            poolingSetting.Factory.GetInstance().Setup(poolingSetting.FactoryParameters);
+            poolingSetting.GarbageCollector.GetInstance().Setup(poolingSetting.GarbageCollectorParameters);
+            while (true)
+            {
+                poolingSetting.Factory.GetInstance().Run();
+                poolingSetting.GarbageCollector.GetInstance().Run();
+                yield return null;
+            }
         }
     }
 
