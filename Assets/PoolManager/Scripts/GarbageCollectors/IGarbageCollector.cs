@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 
 namespace PoolingSystem.GarbageCollectors
@@ -9,12 +10,13 @@ namespace PoolingSystem.GarbageCollectors
         new void Run();
     }
 
+    [Serializable]
     public struct GarbageCollectorParameters
     {
-        [SerializeField] [Tooltip("How many instances to destroy per round.\nOnly for FixedFactory.")] public uint
+        [SerializeField] [Range(1, 999)] [Tooltip("How many instances to destroy per round.\nOnly for FixedFactory.")] public uint
             FixedAmmount;
 
-        [SerializeField] [Tooltip("Proportion of instances to destroy per round.\nOnly for ProportionFactory.")] public
+        [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("Proportion of instances to destroy per round.\nOnly for ProportionFactory.")] public
             float Proportion;
     }
 

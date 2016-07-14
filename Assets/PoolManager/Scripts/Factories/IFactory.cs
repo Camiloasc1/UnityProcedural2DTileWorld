@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace PoolingSystem.Factories
 {
-    public interface IFactory: ITaskRunner<FactoryParameters>
+    public interface IFactory : ITaskRunner<FactoryParameters>
     {
         new void Setup(FactoryParameters factoryParameters);
         new void Run();
@@ -13,10 +13,10 @@ namespace PoolingSystem.Factories
     [Serializable]
     public struct FactoryParameters
     {
-        [SerializeField] [Tooltip("How many instances to create per round.\nOnly for FixedFactory.")] public uint
+        [SerializeField] [Range(1, 999)] [Tooltip("How many instances to create per round.\nOnly for FixedFactory.")] public uint
             FixedAmmount;
 
-        [SerializeField] [Tooltip("Proportion of instances to create per round.\nOnly for ProportionFactory.")] public
+        [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("Proportion of instances to create per round.\nOnly for ProportionFactory.")] public
             float Proportion;
     }
 

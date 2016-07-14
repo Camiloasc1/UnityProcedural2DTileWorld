@@ -126,14 +126,14 @@ namespace PoolingSystem
             while (true)
             {
                 poolingSetting.Factory.GetInstance().Run();
-                poolingSetting.GarbageCollector.GetInstance().Run();
+                //poolingSetting.GarbageCollector.GetInstance().Run();
                 yield return null;
             }
         }
 
         public IEnumerator<IObjectPool> GetEnumerator()
         {
-            return  _pools.Values.GetEnumerator();
+            return _pools.Values.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -163,8 +163,8 @@ namespace PoolingSystem
     public struct PredefinedObjectPool
     {
         [SerializeField] [Tooltip("The base prefab of this pool.")] public GameObject Prefab;
-        [SerializeField] [Tooltip("The minimum number of objects to keep.")] public uint Min;
-        [SerializeField] [Tooltip("The maximum number of objects to keep.\n(0 = No limit.).")] public uint Max;
+        [SerializeField] [Tooltip("The minimum number of instances to keep.")] public uint Min;
+        [SerializeField] [Tooltip("The maximum number of instances to keep.\n(0 = No limit.).")] public uint Max;
         [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("The target usage ratio.")] public float UsageRatio;
     }
 
@@ -174,6 +174,21 @@ namespace PoolingSystem
         /// The prefab that defines the pool.
         /// </summary>
         GameObject Prefab { get; }
+
+        /// <summary>
+        /// The minimum number of instances to keep.
+        /// </summary>
+        uint Min { get; set; }
+
+        /// <summary>
+        /// The maximum number of instances to keep.
+        /// </summary>
+        uint Max { get; set; }
+
+        /// <summary>
+        /// The target usage ratio.
+        /// </summary>
+        float Ratio { get; set; }
 
         /// <summary>
         /// The ammount of elements currently allocated.
@@ -189,6 +204,21 @@ namespace PoolingSystem
         /// The ammount of elements currently inactive.
         /// </summary>
         int InactiveCount { get; }
+
+        /// <summary>
+        /// The current usage ratio.
+        /// </summary>
+        float CurrentRatio { get; }
+
+        /// <summary>
+        /// The ratio after creating one instance.
+        /// </summary>
+        float NextRatio { get; }
+
+        /// <summary>
+        /// The ratio after destroying one instance.
+        /// </summary>
+        float PreviousRatio { get; }
 
         /// <summary>
         /// Retrieves or instantiates a new one if the pool is empty and the limit is not exceeded.
@@ -243,11 +273,11 @@ namespace PoolingSystem
         /// <summary>
         /// Forcedly create a new instance.
         /// </summary>
-        void Instantiate();
+        bool Instantiate();
 
         /// <summary>
         /// Forcedly destroy an inactive instance.
         /// </summary>
-        void Destroy();
+        bool Destroy();
     }
 }

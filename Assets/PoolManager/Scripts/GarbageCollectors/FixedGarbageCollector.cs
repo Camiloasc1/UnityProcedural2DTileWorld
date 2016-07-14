@@ -16,7 +16,20 @@ namespace PoolingSystem.GarbageCollectors
 
         public void Run()
         {
-            throw new NotImplementedException();
+            var count = 0u;
+            foreach (var objectPool in PoolManager.Instance)
+            {
+                while (objectPool.PreviousRatio < objectPool.Ratio)
+                {
+                    if (objectPool.Destroy())
+                    {
+                        if (++count == _garbageCollectorParameters.FixedAmmount)
+                            return;
+                    }
+                    else
+                        break;
+                }
+            }
         }
     }
 }

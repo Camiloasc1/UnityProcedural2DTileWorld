@@ -7,16 +7,34 @@ namespace PoolingSystem
 {
     public class ObjectPool : MonoBehaviour, IObjectPool
     {
-        [SerializeField] [Tooltip("The base prefab of this pool")] private GameObject _prefab;
-        [SerializeField] [Tooltip("The minimum number of objects to keep")] private uint _min;
-        [SerializeField] [Tooltip("The maximum number of objects to keep")] private uint _max;
-        [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("The target usage ratio")] private float _usageRatio;
+        [SerializeField] [Tooltip("The base prefab of this pool.")] private GameObject _prefab;
+        [SerializeField] [Tooltip("The minimum number of instances to keep.")] private uint _min;
+        [SerializeField] [Tooltip("The maximum number of instances to keep.")] private uint _max;
+        [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("The target usage ratio.")] private float _usageRatio;
         private readonly HashSet<GameObject> _active = new HashSet<GameObject>();
         private readonly Stack<GameObject> _inactive = new Stack<GameObject>();
 
         public GameObject Prefab
         {
             get { return _prefab; }
+        }
+
+        public uint Min
+        {
+            get { return _min; }
+            set { _min = value; }
+        }
+
+        public uint Max
+        {
+            get { return _max; }
+            set { _max = value; }
+        }
+
+        public float Ratio
+        {
+            get { return _usageRatio; }
+            set { _usageRatio = value; }
         }
 
         public int Count
@@ -34,25 +52,22 @@ namespace PoolingSystem
             get { return _inactive.Count; }
         }
 
+        public float CurrentRatio
+        {
+            get { return (float) ActiveCount/(float) Count; }
+        }
+
+        public float NextRatio
+        {
+            get { return (float) ActiveCount/(float) (Count + 1); }
+        }
+
+        public float PreviousRatio
+        {
+            get { return (float) ActiveCount/(float) (Count - 1); }
+        }
+
         public bool IsPredefined { get; private set; }
-
-        public uint Min
-        {
-            get { return _min; }
-            set { _min = value; }
-        }
-
-        public uint Max
-        {
-            get { return _max; }
-            set { _max = value; }
-        }
-
-        public float UsageRatio
-        {
-            get { return _usageRatio; }
-            set { _usageRatio = value; }
-        }
 
         /// <summary>
         /// Create a new pool from a PredefinedObjectPool.
@@ -155,21 +170,27 @@ namespace PoolingSystem
             instance.transform.parent = transform;
         }
 
-        public void Instantiate()
+        public bool Instantiate()
         {
-            if (Count < _max)
+            if (_max == 0 || Count < _max)
             {
                 var instance = Instantiate(_prefab);
                 instance.SetActive(false);
                 instance.transform.parent = transform;
                 _inactive.Push(instance);
+                return true;
             }
+            return false;
         }
 
-        public void Destroy()
+        public bool Destroy()
         {
-            if (_inactive.Count > 0)
+            if (_inactive.Count > 0 && _inactive.Count > _min)
+            {
                 Destroy(_inactive.Pop());
+                return true;
+            }
+            return false;
         }
 
         private bool Validate()

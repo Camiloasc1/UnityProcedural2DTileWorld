@@ -16,7 +16,20 @@ namespace PoolingSystem.Factories
 
         public void Run()
         {
-            throw new NotImplementedException();
+            var count = 0u;
+            foreach (var objectPool in PoolManager.Instance)
+            {
+                while (objectPool.NextRatio > objectPool.Ratio)
+                {
+                    if (objectPool.Instantiate())
+                    {
+                        if (++count == _factoryParameters.FixedAmmount)
+                            return;
+                    }
+                    else
+                        break;
+                }
+            }
         }
     }
 }
