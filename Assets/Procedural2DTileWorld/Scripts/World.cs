@@ -28,19 +28,19 @@ namespace Procedural2DTileWorld
         }
 
         // Awake is called when the script instance is being loaded
-        void Awake()
+        public void Awake()
         {
             _chunks = new Chunk[_settings.WorldSize, _settings.WorldSize];
             GenerateWorld(Vector2.zero);
         }
 
         // Use this for initialization
-        void Start()
+        public void Start()
         {
         }
 
         // Update is called once per frame
-        void Update()
+        public void Update()
         {
         }
 

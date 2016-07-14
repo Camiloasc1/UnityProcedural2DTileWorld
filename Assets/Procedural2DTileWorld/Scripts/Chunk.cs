@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PoolingSystem;
 
 namespace Procedural2DTileWorld
 {
@@ -32,22 +33,6 @@ namespace Procedural2DTileWorld
         {
             get { return _size; }
             set { _size = value; }
-        }
-
-        // Awake is called when the script instance is being loaded
-        void Awake()
-        {
-            Generate();
-        }
-
-        // Use this for initialization
-        void Start()
-        {
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
         }
 
         /// <summary>
@@ -111,12 +96,14 @@ namespace Procedural2DTileWorld
         /// <param name="tile">The tile to set.</param>
         private void SetTerrain(int x, int y, GameObject tile)
         {
-            //TODO Use object pool
             if (_terrain[x, y])
-                Destroy(_terrain[x, y]);
-            _terrain[x, y] = Instantiate(tile);
-            _terrain[x, y].transform.parent = transform;
-            _terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+                PoolManager.Pools[tile].Despawn(_terrain[x, y]);
+            _terrain[x, y] = PoolManager.Pools[tile].Spawn();
+            if (_terrain[x, y])
+            {
+                _terrain[x, y].transform.parent = transform;
+                _terrain[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            }
         }
 
         /// <summary>
@@ -127,12 +114,20 @@ namespace Procedural2DTileWorld
         /// <param name="tile">The tile to set.</param>
         private void SetEnviroment(int x, int y, GameObject tile)
         {
-            //TODO Use object pool
             if (_environment[x, y])
-                Destroy(_environment[x, y]);
-            _environment[x, y] = Instantiate(tile);
-            _environment[x, y].transform.parent = transform;
-            _environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+                PoolManager.Pools[tile].Despawn(_environment[x, y]);
+            _environment[x, y] = PoolManager.Pools[tile].Spawn();
+            if (_environment[x, y])
+            {
+                _environment[x, y].transform.parent = transform;
+                _environment[x, y].transform.localPosition = Vector3.right*x + Vector3.up*y;
+            }
+        }
+
+        // Awake is called when the script instance is being loaded
+        public void Awake()
+        {
+            Generate();
         }
     }
 }
