@@ -7,7 +7,7 @@ using PoolingSystem.GarbageCollectors;
 
 namespace PoolingSystem
 {
-    public class PoolManager : MonoBehaviour
+    public class PoolManager : MonoBehaviour, IEnumerable<IObjectPool>
     {
         private static PoolManager _instance;
 
@@ -42,7 +42,7 @@ namespace PoolingSystem
 
         [SerializeField] [Tooltip("Predefined pools.")] private PredefinedObjectPool[] _predefinedPools;
         private bool _initialized;
-        private readonly Dictionary<GameObject, ObjectPool> _pools = new Dictionary<GameObject, ObjectPool>();
+        private readonly Dictionary<GameObject, IObjectPool> _pools = new Dictionary<GameObject, IObjectPool>();
         [SerializeField] private PoolingSetting poolingSetting;
         private IEnumerator _worker;
 
@@ -51,10 +51,10 @@ namespace PoolingSystem
         /// </summary>
         /// <param name="prefab">The prefab that defines the pool.</param>
         /// <returns>The pool asociated with the prefab.</returns>
-        public ObjectPool this[GameObject prefab]
+        public IObjectPool this[GameObject prefab]
         {
             get { return _pools[prefab]; }
-            protected set { _pools[prefab] = value; }
+            set { _pools[prefab] = value; }
         }
 
         /// <summary>
@@ -129,6 +129,16 @@ namespace PoolingSystem
                 poolingSetting.GarbageCollector.GetInstance().Run();
                 yield return null;
             }
+        }
+
+        public IEnumerator<IObjectPool> GetEnumerator()
+        {
+            return  _pools.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 
@@ -229,5 +239,15 @@ namespace PoolingSystem
         /// </summary>
         /// <param name="instance">The instance to despawn</param>
         void Despawn(GameObject instance);
+
+        /// <summary>
+        /// Forcedly create a new instance.
+        /// </summary>
+        void Instantiate();
+
+        /// <summary>
+        /// Forcedly destroy an inactive instance.
+        /// </summary>
+        void Destroy();
     }
 }

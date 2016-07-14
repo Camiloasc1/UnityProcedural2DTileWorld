@@ -155,6 +155,23 @@ namespace PoolingSystem
             instance.transform.parent = transform;
         }
 
+        public void Instantiate()
+        {
+            if (Count < _max)
+            {
+                var instance = Instantiate(_prefab);
+                instance.SetActive(false);
+                instance.transform.parent = transform;
+                _inactive.Push(instance);
+            }
+        }
+
+        public void Destroy()
+        {
+            if (_inactive.Count > 0)
+                Destroy(_inactive.Pop());
+        }
+
         private bool Validate()
         {
             if (_max > 0 && _max < _min)
