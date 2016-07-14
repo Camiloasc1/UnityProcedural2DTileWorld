@@ -7,9 +7,11 @@ namespace PoolingSystem.GarbageCollectors
     [Serializable]
     public class ProportionGarbageCollector : IGarbageCollector
     {
+        private GarbageCollectorParameters _garbageCollectorParameters;
+
         public void Setup(GarbageCollectorParameters garbageCollectorParameters)
         {
-            throw new NotImplementedException();
+            _garbageCollectorParameters = garbageCollectorParameters;
         }
 
         public void Run()

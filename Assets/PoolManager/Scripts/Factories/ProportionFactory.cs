@@ -7,9 +7,11 @@ namespace PoolingSystem.Factories
     [Serializable]
     public class ProportionFactory : IFactory
     {
+        private FactoryParameters _factoryParameters;
+
         public void Setup(FactoryParameters factoryParameters)
         {
-            throw new NotImplementedException();
+            _factoryParameters = factoryParameters;
         }
 
         public void Run()
