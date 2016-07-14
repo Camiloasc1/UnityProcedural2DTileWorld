@@ -16,7 +16,20 @@ namespace PoolingSystem.Factories
 
         public void Run()
         {
-            throw new NotImplementedException();
+            foreach (var objectPool in PoolManager.Instance)
+            {
+                var ammount = CalcAmmount(objectPool)*_factoryParameters.Proportion;
+                for (var i = 0; i < ammount; i++)
+                {
+                    if (!objectPool.Instantiate())
+                        break;
+                }
+            }
+        }
+
+        private static int CalcAmmount(IObjectPool objectPool)
+        {
+            return Mathf.FloorToInt(objectPool.ActiveCount/objectPool.Ratio) - objectPool.Count;
         }
     }
 }

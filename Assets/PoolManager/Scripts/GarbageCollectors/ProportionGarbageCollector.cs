@@ -16,7 +16,20 @@ namespace PoolingSystem.GarbageCollectors
 
         public void Run()
         {
-            throw new NotImplementedException();
+            foreach (var objectPool in PoolManager.Instance)
+            {
+                var ammount = CalcAmmount(objectPool)*_garbageCollectorParameters.Proportion;
+                for (var i = 0; i < ammount; i++)
+                {
+                    if (!objectPool.Instantiate())
+                        break;
+                }
+            }
+        }
+
+        private static int CalcAmmount(IObjectPool objectPool)
+        {
+            return objectPool.Count - Mathf.FloorToInt(objectPool.ActiveCount/objectPool.Ratio);
         }
     }
 }
