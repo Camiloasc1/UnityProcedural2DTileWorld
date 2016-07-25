@@ -8,7 +8,7 @@ namespace PoolingSystem
         /// <summary>
         /// The pool which this PoolElement belongs.
         /// </summary>
-        public ObjectPool Pool;
+        public IObjectPool Pool;
 
         /// <summary>
         /// The base prefab of this PoolElement.

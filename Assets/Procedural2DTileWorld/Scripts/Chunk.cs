@@ -8,7 +8,7 @@ namespace Procedural2DTileWorld
     {
         [Tooltip("Wich tiled world this chunk belongs")] [SerializeField] private World _world;
         [Tooltip("(X,Y) Position in tiled world.")] [SerializeField] private Vector2 _position;
-        [Tooltip("Size of the chunk.")] [SerializeField] private uint _size;
+        [Tooltip("Size of the chunk.")] [Range(1, 256)] [SerializeField] private uint _size;
 
         private GameObject[,] _terrain;
         private GameObject[,] _environment;
@@ -32,7 +32,59 @@ namespace Procedural2DTileWorld
         public uint Size
         {
             get { return _size; }
-            set { _size = value; }
+            set
+            {
+                Clear();
+                if (value < 1)
+                    _size = 1;
+                else if (value > 256)
+                    _size = 256;
+                else
+                    _size = value;
+                Setup();
+            }
+        }
+
+        /// <summary>
+        /// Setup the chunk.
+        /// </summary>
+        private void Setup()
+        {
+            _terrain = new GameObject[_size, _size];
+            _environment = new GameObject[_size, _size];
+        }
+
+        /// <summary>
+        /// Clear all the tiles.
+        /// </summary>
+        public void Clear()
+        {
+            for (var x = 0; x < _size; x++)
+            {
+                for (var y = 0; y < _size; y++)
+                {
+                    Clear(x, y);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clear the tile in (X,Y)
+        /// </summary>
+        /// <param name="x">X position.</param>
+        /// <param name="y">Y position.</param>
+        private void Clear(int x, int y)
+        {
+            if (_terrain[x, y])
+            {
+                _terrain[x, y].GetComponent<PoolElement>().Despawn();
+                _terrain[x, y] = null;
+            }
+            if (_environment[x, y])
+            {
+                _environment[x, y].GetComponent<PoolElement>().Despawn();
+                _environment[x, y] = null;
+            }
         }
 
         /// <summary>
@@ -40,12 +92,12 @@ namespace Procedural2DTileWorld
         /// </summary>
         public void Generate()
         {
-            _terrain = new GameObject[_size, _size];
-            _environment = new GameObject[_size, _size];
-            for (int x = 0; x < _size; x++)
+            //Clear();
+            for (var x = 0; x < _size; x++)
             {
-                for (int y = 0; y < _size; y++)
+                for (var y = 0; y < _size; y++)
                 {
+                    Clear(x, y);
                     Generate(x, y);
                 }
             }
@@ -96,8 +148,6 @@ namespace Procedural2DTileWorld
         /// <param name="tile">The tile to set.</param>
         private void SetTerrain(int x, int y, GameObject tile)
         {
-            if (_terrain[x, y])
-                PoolManager.Pools[tile].Despawn(_terrain[x, y]);
             _terrain[x, y] = PoolManager.Pools[tile].Spawn();
             if (_terrain[x, y])
             {
@@ -114,8 +164,6 @@ namespace Procedural2DTileWorld
         /// <param name="tile">The tile to set.</param>
         private void SetEnviroment(int x, int y, GameObject tile)
         {
-            if (_environment[x, y])
-                PoolManager.Pools[tile].Despawn(_environment[x, y]);
             _environment[x, y] = PoolManager.Pools[tile].Spawn();
             if (_environment[x, y])
             {
@@ -127,7 +175,8 @@ namespace Procedural2DTileWorld
         // Awake is called when the script instance is being loaded
         public void Awake()
         {
-            Generate();
+            _size = 1;
+            Setup();
         }
     }
 }

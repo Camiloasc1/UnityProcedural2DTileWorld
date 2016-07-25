@@ -11,6 +11,8 @@ namespace Procedural2DTileWorld
         [Tooltip("Settings for procedural generation.")] [SerializeField] private Settings _settings;
 
         private Chunk[,] _chunks;
+        private Vector2 _currentPosition;
+        private Transform _camera;
 
         public TileSettings[] Environment
         {
@@ -31,6 +33,8 @@ namespace Procedural2DTileWorld
         public void Awake()
         {
             _chunks = new Chunk[_settings.WorldSize, _settings.WorldSize];
+            _camera = Camera.main.transform;
+            CreateWorld();
             GenerateWorld(Vector2.zero);
         }
 
@@ -42,44 +46,58 @@ namespace Procedural2DTileWorld
         // Update is called once per frame
         public void Update()
         {
+            var cameraPosition = new Vector2(Mathf.Floor(_camera.position.x), Mathf.Floor(_camera.position.y));
+            if (!Mathf.Approximately(_currentPosition.x, cameraPosition.x) ||
+                !Mathf.Approximately(_currentPosition.y, cameraPosition.y))
+                GenerateWorld(cameraPosition);
         }
 
         /// <summary>
-        /// Populate the world generating the chunks around a central position.
+        /// Create all the chunks in the world.
         /// </summary>
-        /// <param name="position">The position of the central chunk.</param>
-        private void GenerateWorld(Vector2 position)
+        private void CreateWorld()
         {
-            position += (Vector2.left + Vector2.up)*_settings.StreamRadius;
-            for (int i = 0; i < _settings.WorldSize; i++)
+            for (var x = 0; x < _settings.WorldSize; x++)
             {
-                for (int j = 0; j < _settings.WorldSize; j++)
+                for (var y = 0; y < _settings.WorldSize; y++)
                 {
-                    //TODO Use object pool
-                    if (_chunks[i, j])
-                        Destroy(_chunks[i, j]);
-                    _chunks[i, j] = GenerateChunk(position);
-                    position += Vector2.down;
+                    _chunks[x, y] = CreateChunk();
                 }
-                position += Vector2.right + Vector2.up*_settings.WorldSize;
             }
         }
 
         /// <summary>
-        /// Generate an individual chunk.
+        /// Create a new chunk.
         /// </summary>
-        /// <param name="position">The position of the chunk</param>
-        private Chunk GenerateChunk(Vector2 position)
+        /// <returns>A new chunk.</returns>
+        private Chunk CreateChunk()
         {
-            //TODO Use object pool
-            GameObject chunkGameObject = Instantiate(_settings.Chunk);
+            var chunkGameObject = Instantiate(_settings.Chunk);
             var chunk = chunkGameObject.GetComponent<Chunk>();
             chunk.transform.parent = transform;
             chunk.World = this;
             chunk.Size = _settings.ChunkSize;
-            chunk.Position = position;
-            chunk.Generate();
             return chunk;
+        }
+
+        /// <summary>
+        /// Generate the world based on a central position.
+        /// </summary>
+        /// <param name="position">The position of the central chunk.</param>
+        private void GenerateWorld(Vector2 position)
+        {
+            _currentPosition = position;
+            position += (Vector2.left + Vector2.up)*_settings.StreamRadius;
+            for (var x = 0; x < _settings.WorldSize; x++)
+            {
+                for (var y = 0; y < _settings.WorldSize; y++)
+                {
+                    _chunks[x, y].Position = position;
+                    _chunks[x, y].Generate();
+                    position += Vector2.down;
+                }
+                position += Vector2.right + Vector2.up*_settings.WorldSize;
+            }
         }
     }
 
