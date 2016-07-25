@@ -103,7 +103,10 @@ namespace PoolingSystem
             if (_inactive.Count > 0)
                 instance = _inactive.Pop();
             else if (_max == 0 || Count < _max)
+            {
                 instance = Instantiate(_prefab);
+                instance.AddComponent<PoolElement>().Pool = this;
+            }
             else
                 return null;
             _active.Add(instance);
@@ -165,6 +168,7 @@ namespace PoolingSystem
             if (_max == 0 || Count < _max)
             {
                 var instance = Instantiate(_prefab);
+                instance.AddComponent<PoolElement>().Pool = this;
                 instance.SetActive(false);
                 instance.transform.parent = transform;
                 _inactive.Push(instance);
