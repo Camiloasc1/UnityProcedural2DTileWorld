@@ -46,7 +46,8 @@ namespace Procedural2DTileWorld
         // Update is called once per frame
         public void Update()
         {
-            var cameraPosition = new Vector2(Mathf.Floor(_camera.position.x), Mathf.Floor(_camera.position.y));
+            var cameraPosition = new Vector2(Mathf.Floor(_camera.position.x/_settings.ChunkSize),
+                Mathf.Floor(_camera.position.y/_settings.ChunkSize));
             if (!Mathf.Approximately(_currentPosition.x, cameraPosition.x) ||
                 !Mathf.Approximately(_currentPosition.y, cameraPosition.y))
                 GenerateWorld(cameraPosition);
