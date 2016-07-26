@@ -29,6 +29,11 @@ namespace Procedural2DTileWorld
             get { return _settings; }
         }
 
+        public Vector2 CurrentPosition
+        {
+            get { return _currentPosition; }
+        }
+
         // Awake is called when the script instance is being loaded
         public void Awake()
         {
